@@ -1,0 +1,9 @@
+name=nanodialogue
+author=nanobot567
+description=nanodialogue demo
+bundleID=com.nano.nanodialogue-demo
+version=1.0
+buildNumber=398
+imagePath=SystemAssets
+pdxversion=20601
+buildtime=791389852
