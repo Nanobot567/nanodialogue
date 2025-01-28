@@ -5,3 +5,5 @@ dynamic dialogue box system for playdate, based off of [pdDialogue](https://gith
 no documentation (as of now), and not as feature-rich as pdDialogue, *but* it has text effects like inverted text, shaky text, and floating text!
 
 just thought i'd make this code public in case anyone wanted to see it :)
+
+!["animated gif of a dialogue system showcasing floating text, shaking text, and character input delay."](assets/nanodialogue.gif)
