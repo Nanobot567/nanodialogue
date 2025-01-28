@@ -3,12 +3,12 @@ import "lib/nanodialogue"
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-local TEXT = "hello! {wavy}testing wavy text{/wavy}. {invert}here{/invert} {shake}is some more{/shake} {delay 100}text{/delay} to check wrapping.\n\nthis should be a new page of {invert}text.\n\n{/invert}i'm very glad this works!\n\nhere's another {wavy}very very very{/wavy} long text box {invert}just to show that more things are possible!{/invert} (and here's a bunch more text to stress test the thing)"
+local TEXT = "hello~! this is nanoDialogue, a dialogue system based off of pdDialogue.\n\nit allows for dynamic text effects, such as {wavy}floating text{/wavy}, {shake}shaky text{/shake}, {delay 60}character adding delay{/delay}, and {invert}inverted text!{/invert}"
 
 local image = gfx.image.new(64, 64, gfx.kColorBlack)
 
-local portrait = nanoPortraitDialogueBox(TEXT, image)
-local dialogue = nanoDialogueBox(TEXT)
+local portrait = nanoPortraitDialogueBox("dummy", image, TEXT, nil, gfx.getFont(gfx.font.kVariantBold))
+local dialogue = nanoDialogueBox(TEXT, nil, gfx.getFont(gfx.font.kVariantBold))
 
 function pd.update()
   pd.timer.updateTimers()

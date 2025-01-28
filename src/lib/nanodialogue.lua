@@ -13,7 +13,7 @@ local Char = nanoDialogue_Char
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-local DIALOGUE_BOX_HEIGHT = 40
+local DIALOGUE_BOX_HEIGHT = 50
 local DIALOGUE_BOX_WIDTH = 400
 local DIALOGUE_BOX_PORTRAIT_HEIGHT = 64
 local DIALOGUE_BOX_PADDING = 4
@@ -165,22 +165,21 @@ end
 function nanoDialogue.processEffects(text)
   local allchars = {}
   local cooked = {}
-  local halfcooked = {}
   local tmp = {}
-  local indeces = {}
 
-  for i = 1, #text do
-    allchars[i] = string.sub(text, i, i)
+  for c in string.gmatch(text, ".") do
+    table.insert(allchars, c)
   end
 
   local inBrace = false
+  local cct, args
 
   for i, v in ipairs(allchars) do
     if inBrace then
       if v == "}" then
         inBrace = false
-        local cct = table.concat(tmp)
-        local args = string.split(cct, " ")
+        cct = table.concat(tmp)
+        args = string.split(cct, " ")
 
         if string.sub(cct, 1, 1) == "/" then
           table.insert(cooked, { effect = string.sub(cct, 2, #cct), type = "end" })
@@ -197,12 +196,11 @@ function nanoDialogue.processEffects(text)
         inBrace = true
       else
         table.insert(cooked, v)
-        table.insert(halfcooked, v)
       end
     end
   end
 
-  return cooked, halfcooked
+  return cooked
 end
 
 nanoDialogueBox = {}
@@ -277,12 +275,16 @@ function nanoDialogueBox:init(text, font, invertedFont, rect)
       if self.pageDone then
         pageDoneStuff()
       else
-        while not self.pageDone do
-          self:addChar()
-        end
+        self:finishDialogue()
       end
     end
   }
+end
+
+function nanoDialogueBox:finishDialogue()
+  while not self.pageDone do
+    self:addChar(true)
+  end
 end
 
 function nanoDialogueBox:createNewCharTimer(time)
@@ -295,7 +297,7 @@ function nanoDialogueBox:createNewCharTimer(time)
   self.charTimer.timerEndedCallback = function() self:addChar() end
 end
 
-function nanoDialogueBox:addChar()
+function nanoDialogueBox:addChar(noOnChar)
   if self.paginated[self.currentPage] then
     if self.currentChar - self.offset <= #self.paginated[self.currentPage] then
       if self.effectIndeces[tostring(self.currentTotalChar + ((self.currentPage - 1) * 2))] then
@@ -317,6 +319,10 @@ function nanoDialogueBox:addChar()
         self.offset += 1
       else
         local c = string.sub(self.paginated[self.currentPage], self.currentChar - self.offset, self.currentChar - self.offset)
+
+        if self.onChar and not noOnChar then
+          self:onChar()
+        end
 
         if c ~= nil then
           table.insert(self.chars,
@@ -354,6 +360,10 @@ function nanoDialogueBox:close()
   pd.inputHandlers.pop()
   self:restartDialogue()
   self:stop()
+
+  if self.onClose then
+    self:onClose()
+  end
 end
 
 function nanoDialogueBox:restartDialogue()
@@ -424,7 +434,7 @@ end
 nanoPortraitDialogueBox = {}
 class("nanoPortraitDialogueBox").extends(nanoDialogueBox)
 
-function nanoPortraitDialogueBox:init(text, portrait, name, font, invertedFont, imageDrawMode, rect)
+function nanoPortraitDialogueBox:init(name, portrait, text, font, invertedFont, imageDrawMode, rect)
   rect = rect or pd.geometry.rect.new(64, 240 - DIALOGUE_BOX_PORTRAIT_HEIGHT, DIALOGUE_BOX_WIDTH - 64, DIALOGUE_BOX_PORTRAIT_HEIGHT)
 
   self.imageDrawMode = imageDrawMode or gfx.kDrawModeCopy
@@ -437,7 +447,7 @@ end
 
 function nanoPortraitDialogueBox:drawPortrait(x, y)
   local font = self.font or gfx.getFont()
-  local textrect = pd.geometry.rect.new(0, y + (font:getHeight() - self.rect.height + 32), 64, 16)
+  local textrect = pd.geometry.rect.new(0, y - (font:getHeight()), 64, font:getHeight())
 
   gfx.setColor(gfx.kColorWhite)
   gfx.fillRect(x, y, 64, 64)
